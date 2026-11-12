@@ -1,0 +1,12 @@
+{
+  "python.analysis.typeCheckingMode": "basic",
+  "suggest.autoTrigger": "none",
+  "suggest.triggerCompletionWait": 0,
+  "suggest.triggerAfterInsertEnter": false,
+  "inlineSuggest.autoTrigger": false,
+  "nextEdit.autoTrigger":false,
+  "inlayHint.enable":false,
+  "inlayHint.enableParameter":false,
+  "inlayHint.display":false,
+}
+

@@ -3,8 +3,8 @@
 " Remap h and j to respect word wordwrap
 nnoremap <Up> gk
 nnoremap <Down> gj
-inoremap <Up>   <C-o>gk
-inoremap <Down> <C-o>gj
+inoremap <Up>   <C-o>g<Up>
+inoremap <Down> <C-o>g<Down>
 " ctrl+z = undo
 lnoremap <c-z> <ESC>ui
 inoremap <c-z> <ESC>ui
@@ -57,9 +57,6 @@ nmap <C-s-Down> vj}k
 imap <C-s-Down> <esc>vj}k
 vmap <C-s-Down> j}k
 
-" backspace in visual mode = delete hilighted
-vmap <BS> d
-
 " shift + direction highlight in direction
 imap <s-Up> <ESC>vk
 nmap <s-Up> vk
@@ -77,12 +74,18 @@ imap <s-Left> h<ESC>vh
 nmap <s-Left> vh
 vmap <s-Left> h
 
+" backspace in visual mode = delete hilighted
 " backspace = delete letter behind and enter insert mode
+vmap <BS> d
 nmap <BS> dhi
 
-" ctrl+backspace = delete word behind
+" ctrl+backspace = delete until whitespace
 imap <c-BS> <ESC>dBxa
 nmap <c-BS> dBxa
+
+" shift+backspace = delete word behind
+imap <s-BS> <ESC><Right>db
+nmap <s-BS> <Right>db
 
 " ctrl+e = End of line
 nmap <c-e> $
@@ -146,11 +149,11 @@ vmap <C-Left> B
 "nmap <a-n> :tabnew<CR>
 "imap <a-n> :tabnew<CR>
 
-" alt+right = advance a vim tab in normal mode
-nnoremap <a-right> :tabn<CR>
+" alt+right = move to the split on the right
+nnoremap <a-right> :wincmd l<CR>
 
-" alt+left = previous vim tab in normal mode
-nnoremap <a-left> :tabp<CR>
+" alt+left = move to the split on the left
+nnoremap <a-left> :wincmd h<CR>
 
 " ctrl + w = close and save vim tab
 nnoremap <c-w> :wq<CR>
@@ -187,9 +190,12 @@ vmap // gc
 
 " tab = tab in insert mode
 " works with multiple lines in visual mode
+nnoremap <tab> i<tab><esc>
 vmap <tab> >
 
 " shift+tab = tab back in insert mode and visual mode
+
+nnoremap <s-tab> <h
 imap <s-tab> <ESC><hi
 vmap <s-tab> <
 
@@ -277,7 +283,8 @@ tnoremap <silent> <a-s-=> <C-\><C-n>:RnvimrResize<CR>
 nmap <C-h> \ww
 
 "terminal
-tmap <c-`> <c-\><c-n>:
+tnoremap <Esc> <c-\><c-n>
+tnoremap <c-w> <c-\><c-n>:q<cr>
 
 "new
 "command

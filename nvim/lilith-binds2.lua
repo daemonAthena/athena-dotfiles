@@ -11,6 +11,17 @@
 --   },
 -- })
 
+function create_set_buffer ()
+    buf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_win_set_buf(0, buf)
+    return buf
+end
+  
+function remove_buffer (buf)
+  if vim.api.nvim_buf_is_valid(buf) then
+    vim.api.nvim_buf_delete(buf, { force = true })
+  end
+end
 
 vim.keymap.set('n', '<leader>mm', function()
   local root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
@@ -35,8 +46,26 @@ end
 
 vim.keymap.set({'n','i'}, '<F5>', function()
   local ft = vim.bo.filetype
+  
+  -- FOR PYTHON
   if ft == 'python' then
-    vim.cmd('!python3 ' .. vim.fn.shellescape(vim.fn.expand('%')))
+    local file = vim.fn.shellescape(vim.fn.expand('%:p'))
+    vim.cmd('lcd %:p:h')
+    vim.cmd('botright split')
+
+    -- Dedicate a buffer to the terminal
+    buf = create_set_buffer()  
+    
+    vim.fn.termopen('python ' .. file .. '; exec $SHELL', {
+      on_exit = function() vim.schedule( function()
+        remove_buffer(buf)
+        end)
+    end, -- calback scheduled for exit
+    })
+    vim.cmd('startinsert')
+
+
+  -- FOR C and C++
   elseif ft == 'c' or ft == 'cpp' then 
       local root = vim.fn.systemlist({
     'git', '-C', vim.fn.expand('%:p:h'), 'rev-parse', '--show-toplevel'
@@ -45,22 +74,21 @@ vim.keymap.set({'n','i'}, '<F5>', function()
         vim.notify('git rev-parse failed: ' .. (root or ''), vim.log.levels.WARN)
         return
       end
+
       --vim.print('Repo root: ' .. root)
       --vim.cmd('make -C ' .. vim.fn.shellescape(root) .. ' -k')
       vim.cmd('lcd ' .. root)
       vim.cmd('botright split')
-      local buf = vim.api.nvim_create_buf(false, true)
-      vim.api.nvim_win_set_buf(0, buf)
+      
+      buf = create_set_buffer()
       vim.fn.termopen('sh -c ' .. vim.fn.shellescape('make -k; exec $SHELL'), {
-        on_exit = function()
-          vim.schedule(function()
-            if vim.api.nvim_buf_is_valid(buf) then
-              vim.api.nvim_buf_delete(buf, { force = true })
-      end
-    end)
-  end,
+        on_exit = function() vim.schedule(function()
+          remove_buffer(buf)
+          end
+      ) end,
 })
 vim.cmd('startinsert')
+
   elseif ft == 'vim' or ft == 'lua' then
       vim.cmd('source %')
       vim.print('Sourced~!')
@@ -90,14 +118,14 @@ vim.keymap.set('n', '<C-a-Up>',   function() mc.lineAddCursor(-1) end, { desc = 
 
 
 vim.keymap.set('n', '<F12>', function()
-  vim.cmd('rightbelow vsplit | terminal')
+  vim.cmd('botright split | terminal')
   vim.cmd('startinsert')
 end, { desc = 'Open terminal split' })
 
 vim.keymap.set('n', '<s-F12>', function()
-  vim.cmd('botright split | terminal')
+  require('user.smart_split').terminal()
   vim.cmd('startinsert')
-end, { desc = 'Open terminal split' })
+end, { desc = 'Open terminal smart split' })
 
 
 -- require('image').setup({
